@@ -8,3 +8,4 @@ This repository contains materials for the AI Fundamentals course at Al-Maaref U
 - **Prompt Engineering.pdf**: An in-depth reference document detailing prompt engineering techniques, methodologies, and best practices.
 - **Prompt_Engineering_04-08-2026.pptx**: Presentation slides dedicated to the topic of Prompt Engineering, from the session held on April 8, 2026.
 - **ai tests .zip**: A compressed archive containing various testing materials, prompts, or sample files regarding AI capabilities discussed in the course.
+- **prompt-master**: A skill that writes the accurate prompts for any AI tool. Zero tokens or credits wasted. Full context and memory retention. No re-prompting your way to an answer you should have gotten on attempt one.
