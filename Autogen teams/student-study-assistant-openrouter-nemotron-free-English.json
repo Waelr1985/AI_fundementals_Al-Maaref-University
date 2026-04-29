@@ -1,0 +1,225 @@
+{
+  "provider": "autogen_agentchat.teams.RoundRobinGroupChat",
+  "component_type": "team",
+  "version": 1,
+  "component_version": 1,
+  "description": "Four-agent local study assistant powered by Gemma 4 via LM Studio.",
+  "label": "Student Study Assistant",
+  "config": {
+    "participants": [
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Explains lecture content clearly to a university student.",
+        "label": "lecture_explainer",
+        "config": {
+          "name": "lecture_explainer",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": ".....",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Explains lecture content clearly to a university student.",
+          "system_message": "You are lecture_explainer, a patient university tutor.\n\nYour job:\n- Read the lecture content provided by the student.\n- Produce a clear, structured explanation of the main ideas.\n- Assume the student is smart but new to the topic.\n- Use short paragraphs, concrete examples, and analogies when helpful.\n- Never invent facts. If something is unclear or missing from the provided text, say so explicitly.\n- Do not summarize — a different agent handles summaries.\n- Do not write a quiz — a different agent handles quizzes.\n- End your reply with exactly one line: \"EXPLANATION_DONE\"",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Condenses a lecture into 5–8 high-signal bullet points.",
+        "label": "lecture_summarizer",
+        "config": {
+          "name": "lecture_summarizer",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": ".....",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Condenses a lecture into 5–8 high-signal bullet points.",
+          "system_message": "You are lecture_summarizer, an expert note-taker.\n \nYour job:\n- Read the lecture content and the previous explanation.\n- Produce a concise summary of 5 to 8 bullet points.\n- Each bullet must be a complete, self-contained idea.\n- Prefer concrete facts and key terms over vague phrases.\n- Do not explain in detail — explanation is done.\n- Do not write a quiz or define terms — other agents handle that.\n- End your reply with exactly one line: \"SUMMARY_DONE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Generates a 20-question formative quiz with answer key.",
+        "label": "quiz_helper",
+        "config": {
+          "name": "quiz_helper",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": "......",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Generates a 20-question formative quiz with answer key.",
+          "system_message": "You are quiz_helper, a creator of formative self-assessment quizzes.\n \nYour job:\n- Based on the lecture content and the previous summary, create\n  exactly 20 quiz questions.\n- Mix question types: 8 multiple choice (4 options each), 8 short\n  answer, and 4 \"explain in your own words\" questions.\n- All questions must be answerable from the provided lecture only.\n- After the questions, provide an \"Answer Key\" section with the\n  correct answer and a one-line justification for each.\n- Do not re-explain the lecture or define terms — that is done.\n- End your reply with exactly one line: \"QUIZ_DONE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Builds a 6–10 term glossary from the lecture and ends the run.",
+        "label": "terminology_agent",
+        "config": {
+          "name": "terminology_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": ".....",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Builds a 6–10 term glossary from the lecture and ends the run.",
+          "system_message": "You are terminology_agent, a domain glossary builder.\n \nYour job:\n- Identify the 6 to 10 most important technical terms in the\n  lecture content.\n- For each term, write:\n    * the term itself (in bold)\n    * a one-sentence plain-language definition\n    * a very short example from the lecture or the field\n- Prefer terms that a first-time reader would not already know.\n- Do not repeat what other agents have said.\n- When you are finished, end your reply with exactly one line:\n  \"TERMINATE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      }
+    ],
+    "termination_condition": {
+      "provider": "autogen_agentchat.base.OrTerminationCondition",
+      "component_type": "termination",
+      "version": 1,
+      "component_version": 1,
+      "label": "TERMINATE or 10 messages",
+      "config": {
+        "conditions": [
+          {
+            "provider": "autogen_agentchat.conditions.TextMentionTermination",
+            "component_type": "termination",
+            "version": 1,
+            "component_version": 1,
+            "config": {
+              "text": "TERMINATE"
+            }
+          },
+          {
+            "provider": "autogen_agentchat.conditions.MaxMessageTermination",
+            "component_type": "termination",
+            "version": 1,
+            "component_version": 1,
+            "config": {
+              "max_messages": 10
+            }
+          }
+        ]
+      }
+    }
+  }
+}
