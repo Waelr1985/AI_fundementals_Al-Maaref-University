@@ -71,7 +71,7 @@
             "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
             "config": {
               "model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "api_key": "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",
+              "api_key": "....",
               "base_url": "https://openrouter.ai/api/v1",
               "model_info": {
                 "vision": false,
@@ -117,7 +117,7 @@
             "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
             "config": {
               "model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "api_key": "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",
+              "api_key": "......",
               "base_url": "https://openrouter.ai/api/v1",
               "model_info": {
                 "vision": false,
@@ -163,7 +163,7 @@
             "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
             "config": {
               "model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "api_key": "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",
+              "api_key": "....",
               "base_url": "https://openrouter.ai/api/v1",
               "model_info": {
                 "vision": false,
