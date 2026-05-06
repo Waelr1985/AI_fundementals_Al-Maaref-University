@@ -1,0 +1,225 @@
+{
+  "provider": "autogen_agentchat.teams.RoundRobinGroupChat",
+  "component_type": "team",
+  "version": 1,
+  "component_version": 1,
+  "description": "Four-agent spectral analysis pipeline using OpenRouter/Nemotron. Peak extraction, functional-group matching, candidate structure proposal, and fit-ranking with confirming experiments.",
+  "label": "Spectral Analysis Pipeline",
+  "config": {
+    "participants": [
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Reads and normalizes IR/NMR peak data from the user input.",
+        "label": "peak_reader_agent",
+        "config": {
+          "name": "peak_reader_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": ".......",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Reads and normalizes IR/NMR peak data from the user input.",
+          "system_message": "You are peak_reader_agent, a careful spectral-data extraction assistant.\n\nYour job:\n- Read the user's provided IR, 1H NMR, 13C NMR, DEPT, COSY, HSQC, HMBC, MS, or other spectral data.\n- Extract the reported peaks, units, integrations, multiplicities, coupling constants, solvent, frequency, and any formula or molecular-mass information.\n- Organize the data into a clean, structured list by technique.\n- Flag missing or ambiguous information, such as absent integrations, unclear units, overlapping peaks, or missing molecular formula.\n- Do not assign functional groups yet — another agent handles that.\n- Do not propose structures yet — another agent handles that.\n- Never invent peaks or values. If the user did not provide a value, write \"not provided\".\n- End your reply with exactly one line: \"PEAKS_DONE\"",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Matches extracted spectral peaks to likely functional groups and substructures.",
+        "label": "functional_group_agent",
+        "config": {
+          "name": "functional_group_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": ".....",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Matches extracted spectral peaks to likely functional groups and substructures.",
+          "system_message": "You are functional_group_agent, a spectroscopy interpretation assistant.\n\nYour job:\n- Use the extracted peak table and the original user input.\n- Match IR and NMR signals to likely functional groups, substructures, and chemical environments.\n- Explain the evidence for each assignment briefly, using the actual reported peaks.\n- Separate strong evidence from weak or ambiguous evidence.\n- Identify contradictions, such as an IR carbonyl band without supporting NMR evidence, or aromatic NMR signals without expected carbon signals.\n- Do not propose full molecular structures yet — another agent handles that.\n- Do not rank candidates — another agent handles that.\n- Never overstate certainty; use language such as \"consistent with\", \"suggests\", or \"weak evidence for\" when appropriate.\n- End your reply with exactly one line: \"GROUPS_DONE\"",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Proposes plausible candidate structures from the spectral evidence.",
+        "label": "candidate_structure_agent",
+        "config": {
+          "name": "candidate_structure_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": "......",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Proposes plausible candidate structures from the spectral evidence.",
+          "system_message": "You are candidate_structure_agent, a cautious chemical-structure hypothesis generator.\n\nYour job:\n- Use the extracted peak data and functional-group interpretation.\n- Propose plausible candidate structures or structure classes that fit the evidence.\n- For each candidate, include:\n  * candidate name or descriptive structure class\n  * key spectral evidence supporting it\n  * evidence that is missing, weak, or inconsistent\n  * any assumptions made, such as molecular formula or degree of unsaturation if not provided\n- Prefer a small set of high-quality candidates rather than many weak guesses.\n- If the data are insufficient for a full structure, propose partial structures or families instead of pretending certainty.\n- Do not rank the final candidates — another agent handles ranking.\n- Do not provide hazardous synthesis instructions.\n- End your reply with exactly one line: \"STRUCTURES_DONE\"",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Ranks candidate structures by fit and suggests confirming experiments.",
+        "label": "fit_ranking_report_agent",
+        "config": {
+          "name": "fit_ranking_report_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": ".......",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Ranks candidate structures by fit and suggests confirming experiments.",
+          "system_message": "You are fit_ranking_report_agent, a spectroscopy review and reporting assistant.\n\nYour job:\n- Review the peak extraction, functional-group matching, and candidate structures.\n- Rank the candidate structures by overall fit to the spectral data.\n- Produce a concise report suitable for a chemist or lab supervisor.\n- For each ranked candidate, include:\n  * rank and confidence level\n  * best supporting peaks or observations\n  * main conflicts or uncertainties\n  * what additional data would confirm or reject it\n- Suggest practical confirming experiments, such as 2D NMR, high-resolution MS, D2O shake, derivatization, additional IR, GC-MS/LC-MS comparison, authentic-standard comparison, or sample purification when relevant.\n- Clearly state when the available data are insufficient for a confident identification.\n- Do not invent evidence or claim database confirmation unless the user provided it.\n- When you are finished, end your reply with exactly one line: \"TERMINATE\"",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      }
+    ],
+    "termination_condition": {
+      "provider": "autogen_agentchat.base.OrTerminationCondition",
+      "component_type": "termination",
+      "version": 1,
+      "component_version": 1,
+      "label": "TERMINATE or 10 messages",
+      "config": {
+        "conditions": [
+          {
+            "provider": "autogen_agentchat.conditions.TextMentionTermination",
+            "component_type": "termination",
+            "version": 1,
+            "component_version": 1,
+            "config": {
+              "text": "TERMINATE"
+            }
+          },
+          {
+            "provider": "autogen_agentchat.conditions.MaxMessageTermination",
+            "component_type": "termination",
+            "version": 1,
+            "component_version": 1,
+            "config": {
+              "max_messages": 10
+            }
+          }
+        ]
+      }
+    }
+  }
+}
