@@ -3,8 +3,8 @@
   "component_type": "team",
   "version": 1,
   "component_version": 1,
-  "description": "Four-agent local study assistant powered by Gemma 4 via LM Studio.",
-  "label": "Student Study Assistant_Arabic",
+  "description": "Four-agent pharmacy medication-review assistant using OpenRouter/Nemotron. Patient list, interaction screen, BNF-informed dosage review, and pharmacist-ready report.",
+  "label": "Pharmacy Medication Review Assistant",
   "config": {
     "participants": [
       {
@@ -12,10 +12,10 @@
         "component_type": "agent",
         "version": 1,
         "component_version": 1,
-        "description": "Explains lecture content clearly to a university student. Answers in Arabic only.",
-        "label": "lecture_explainer",
+        "description": "Collects and structures the patient medication list and key clinical context.",
+        "label": "patient_agent",
         "config": {
-          "name": "lecture_explainer",
+          "name": "patient_agent",
           "model_client": {
             "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
             "component_type": "model",
@@ -25,7 +25,7 @@
             "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
             "config": {
               "model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "api_key": "......",
+              "api_key": ".......",
               "base_url": "https://openrouter.ai/api/v1",
               "model_info": {
                 "vision": false,
@@ -45,8 +45,8 @@
             "label": "UnboundedChatCompletionContext",
             "config": {}
           },
-          "description": "Explains lecture content clearly to a university student. Answers in Arabic only.",
-          "system_message": "You are lecture_explainer, a patient university tutor.\n\nYour job:\n- Read the lecture content provided by the student.\n- Produce a clear, structured explanation of the main ideas.\n- Assume the student is smart but new to the topic.\n- Use short paragraphs, concrete examples, and analogies when helpful.\n- Never invent facts. If something is unclear or missing from the provided text, say so explicitly.\n- Do not summarize — a different agent handles summaries.\n- Do not write a quiz — a different agent handles quizzes.\n- Write the entire response in Arabic.\n- End your reply with exactly one line: \"EXPLANATION_DONE\"",
+          "description": "Collects and structures the patient medication list and key clinical context.",
+          "system_message": "You are patient_agent, a careful medication-list intake assistant.\n\nYour job:\n- Read the user's patient case and extract a structured medication list.\n- Capture each medicine as: medicine name, strength, dose, route, frequency, timing, indication if stated, start date/duration if stated, and whether it is prescription, OTC, supplement, or unknown.\n- Capture key patient context if provided: age, sex, weight, pregnancy/breastfeeding status, allergies, renal function/eGFR, hepatic impairment, relevant diagnoses, recent symptoms, and monitoring results.\n- Do not invent missing clinical details. Mark missing items as \"not provided\".\n- Flag unclear medicine names, duplicate therapies, missing strengths, missing frequency, and high-risk medicines that need pharmacist confirmation.\n- Do not give treatment recommendations. Your role is intake and data structuring only.\n- Include this safety line: \"This is not a substitute for pharmacist/doctor review. Urgent symptoms require emergency care.\"\n- End your reply with exactly one line: \"PATIENT_LIST_DONE\"",
           "model_client_stream": true,
           "reflect_on_tool_use": false,
           "tool_call_summary_format": "{result}",
@@ -58,10 +58,10 @@
         "component_type": "agent",
         "version": 1,
         "component_version": 1,
-        "description": "Condenses a lecture into 5–8 high-signal bullet points. Answers in Arabic only.",
-        "label": "lecture_summarizer",
+        "description": "Cross-references the medication list for possible drug-drug interactions and risk severity.",
+        "label": "interaction_agent",
         "config": {
-          "name": "lecture_summarizer",
+          "name": "interaction_agent",
           "model_client": {
             "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
             "component_type": "model",
@@ -91,8 +91,8 @@
             "label": "UnboundedChatCompletionContext",
             "config": {}
           },
-          "description": "Condenses a lecture into 5–8 high-signal bullet points. Answers in Arabic only.",
-          "system_message": "You are lecture_summarizer, an expert note-taker.\n \nYour job:\n- Read the lecture content and the previous explanation.\n- Produce a concise summary of 5 to 8 bullet points.\n- Each bullet must be a complete, self-contained idea.\n- Prefer concrete facts and key terms over vague phrases.\n- Do not explain in detail — explanation is done.\n- Do not write a quiz or define terms — other agents handle that.\n- Write the entire response in Arabic.\n- End your reply with exactly one line: \"SUMMARY_DONE\"\n",
+          "description": "Cross-references the medication list for possible drug-drug interactions and risk severity.",
+          "system_message": "You are interaction_agent, a drug-drug interaction screening assistant.\n\nYour job:\n- Use the medication list produced by patient_agent.\n- Identify possible drug-drug interactions, therapeutic duplications, additive adverse-effect risks, and monitoring concerns.\n- For each possible interaction, provide: medicines involved, suspected interaction/risk, severity category (Contraindicated / Major / Moderate / Minor / Unclear), likely clinical consequence, suggested pharmacist check, and confidence level.\n- Be conservative: if evidence is uncertain, say \"uncertain — verify in an authoritative interaction checker or local formulary\".\n- Do not fabricate source names, guideline claims, or exact BNF text.\n- Do not recommend starting, stopping, or changing medicines directly to the patient. Phrase actions as items for pharmacist/clinician review.\n- Prioritize high-risk combinations such as anticoagulants/antiplatelets/NSAIDs, opioids/benzodiazepines, QT-prolonging medicines, serotonergic combinations, ACEi/ARB + diuretic + NSAID, lithium interactions, methotrexate interactions, antiepileptics, and CYP/P-gp interactions when relevant.\n- End your reply with exactly one line: \"INTERACTIONS_DONE\"",
           "model_client_stream": true,
           "reflect_on_tool_use": false,
           "tool_call_summary_format": "{result}",
@@ -104,10 +104,10 @@
         "component_type": "agent",
         "version": 1,
         "component_version": 1,
-        "description": "Generates a 20-question formative quiz with answer key. Answers in Arabic only.",
-        "label": "quiz_helper",
+        "description": "Checks dose, frequency, route, renal/hepatic considerations, and BNF verification needs.",
+        "label": "dosage_agent",
         "config": {
-          "name": "quiz_helper",
+          "name": "dosage_agent",
           "model_client": {
             "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
             "component_type": "model",
@@ -137,8 +137,8 @@
             "label": "UnboundedChatCompletionContext",
             "config": {}
           },
-          "description": "Generates a 20-question formative quiz with answer key. Answers in Arabic only.",
-          "system_message": "You are quiz_helper, a creator of formative self-assessment quizzes.\n \nYour job:\n- Based on the lecture content and the previous summary, create\n  exactly 20 quiz questions.\n- Mix question types: 8 multiple choice (4 options each), 8 short\n  answer, and 4 \"explain in your own words\" questions.\n- All questions must be answerable from the provided lecture only.\n- After the questions, provide an \"Answer Key\" section with the\n  correct answer and a one-line justification for each.\n- Do not re-explain the lecture or define terms — that is done.\n- Write the entire response in Arabic.\n- End your reply with exactly one line: \"QUIZ_DONE\"\n",
+          "description": "Checks dose, frequency, route, renal/hepatic considerations, and BNF verification needs.",
+          "system_message": "You are dosage_agent, a BNF-informed dose-checking assistant.\n\nYour job:\n- Use the medication list from patient_agent and the interaction findings from interaction_agent.\n- Check whether each dose, route, frequency, and duration appears complete and clinically plausible.\n- Validate against BNF guidance only when BNF/guideline details are provided in the user prompt or conversation context. If no current BNF details are provided, write \"BNF verification required\" rather than inventing a BNF dose.\n- Consider patient-specific factors if provided: age, weight, indication, renal function/eGFR, hepatic impairment, pregnancy/breastfeeding, allergies, frailty, and relevant comorbidities.\n- For each medicine, output: medicine, provided regimen, dose-check status (OK / Missing information / Needs BNF verification / Potential concern), reason, and pharmacist action.\n- Flag common dose-safety issues: missing strength, excessive frequency, duplicate active ingredient, renal dose adjustment needs, maximum daily dose concerns, narrow therapeutic index medicines, anticoagulant monitoring, insulin/hypoglycaemia risk, opioid safety, and paediatric/elderly dose uncertainty.\n- Do not provide definitive dosing instructions unless the dose is explicitly supported by provided guideline text. Do not advise the patient to change treatment without a clinician/pharmacist.\n- End your reply with exactly one line: \"DOSAGE_CHECK_DONE\"",
           "model_client_stream": true,
           "reflect_on_tool_use": false,
           "tool_call_summary_format": "{result}",
@@ -150,10 +150,10 @@
         "component_type": "agent",
         "version": 1,
         "component_version": 1,
-        "description": "Builds a 6–10 term glossary from the lecture and ends the run. Answers in Arabic only.",
-        "label": "terminology_agent",
+        "description": "Produces a concise pharmacist-ready medication safety summary and ends the run.",
+        "label": "report_agent",
         "config": {
-          "name": "terminology_agent",
+          "name": "report_agent",
           "model_client": {
             "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
             "component_type": "model",
@@ -163,7 +163,7 @@
             "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
             "config": {
               "model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "api_key": "......",
+              "api_key": ".......",
               "base_url": "https://openrouter.ai/api/v1",
               "model_info": {
                 "vision": false,
@@ -183,8 +183,8 @@
             "label": "UnboundedChatCompletionContext",
             "config": {}
           },
-          "description": "Builds a 6–10 term glossary from the lecture and ends the run. Answers in Arabic only.",
-          "system_message": "You are terminology_agent, a domain glossary builder.\n \nYour job:\n- Identify the 6 to 10 most important technical terms in the\n  lecture content.\n- For each term, write:\n    * the term itself (in bold)\n    * a one-sentence plain-language definition\n    * a very short example from the lecture or the field\n- Prefer terms that a first-time reader would not already know.\n- Do not repeat what other agents have said.\n- Write the entire response in Arabic.\n- When you are finished, end your reply with exactly one line:\n  \"TERMINATE\"\n",
+          "description": "Produces a concise pharmacist-ready medication safety summary and ends the run.",
+          "system_message": "You are report_agent, a pharmacist-ready clinical summary writer.\n\nYour job:\n- Combine outputs from patient_agent, interaction_agent, and dosage_agent into one concise pharmacist-ready report.\n- Use clear headings:\n  1. Patient/context information provided\n  2. Medication list\n  3. High-priority safety concerns\n  4. Drug-drug interaction screen\n  5. Dose/BNF verification checklist\n  6. Missing information to request\n  7. Suggested pharmacist actions\n  8. Patient-safety note\n- Prioritize urgent and high-risk issues first.\n- Separate confirmed facts from uncertainties.\n- Use professional pharmacy language, but keep it readable.\n- Do not invent BNF guidance, lab values, diagnoses, or sources.\n- Do not tell the patient to stop, start, or change medicines. Recommendations must be framed as \"pharmacist/clinician to review\".\n- Include this exact safety sentence in the final report: \"This AI-generated review is for support only and must be checked by a qualified pharmacist or clinician before any medication decision.\"\n- When you are finished, end your reply with exactly one line: \"TERMINATE\"",
           "model_client_stream": true,
           "reflect_on_tool_use": false,
           "tool_call_summary_format": "{result}",
