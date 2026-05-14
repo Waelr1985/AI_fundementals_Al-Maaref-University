@@ -1,0 +1,225 @@
+{
+  "provider": "autogen_agentchat.teams.RoundRobinGroupChat",
+  "component_type": "team",
+  "version": 1,
+  "component_version": 1,
+  "description": "Four-agent PID controller design and simulation team using OpenRouter Nemotron.",
+  "label": "PID Controller Design and Simulation Team",
+  "config": {
+    "participants": [
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Proposes PID controller gains Kp, Ki, and Kd for the target plant.",
+        "label": "design_agent",
+        "config": {
+          "name": "design_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": "YOUR_OPENROUTER_API_KEY",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Proposes PID controller gains Kp, Ki, and Kd for the target plant.",
+          "system_message": "You are design_agent, a PID controller design specialist.\n\nYour job:\n- Read the user's control-system problem, including the plant transfer function, target behavior, and constraints.\n- Propose initial PID parameters Kp, Ki, and Kd.\n- Explain briefly why each parameter value was selected.\n- State any assumptions clearly if the plant, sampling time, or design targets are incomplete.\n- Prefer practical, stable starting values over aggressive tuning.\n- Give the proposed controller in this exact format:\n  PID_PARAMETERS:\n  Kp = <value>\n  Ki = <value>\n  Kd = <value>\n- Do not write the full Python simulation. The code_agent handles implementation.\n- End your reply with exactly one line: \"DESIGN_DONE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Writes a Python control-system simulation using python-control, numpy, and matplotlib.",
+        "label": "code_agent",
+        "config": {
+          "name": "code_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": "YOUR_OPENROUTER_API_KEY",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Writes a Python control-system simulation using python-control, numpy, and matplotlib.",
+          "system_message": "You are code_agent, a Python control-simulation engineer.\n\nYour job:\n- Use the plant description and PID parameters proposed by design_agent.\n- Write a complete Python simulation using standard scientific Python libraries.\n- Use the python-control package when appropriate:\n  import control as ct\n- Also use numpy and matplotlib.\n- Build the plant transfer function, PID controller, closed-loop system, and unit-step response.\n- Include code that calculates performance metrics:\n  * percent overshoot\n  * settling time, using a 2% settling band unless the user specifies another threshold\n  * steady-state error\n- Make the code clear enough for a student to run in Jupyter, Colab, or a local Python environment.\n- Include a short note about required installation, for example:\n  pip install control numpy matplotlib\n- Do not tune new parameters unless the design is clearly unsafe; if you change parameters, explain why.\n- Do not provide final evaluation. The evaluator_agent handles evaluation.\n- End your reply with exactly one line: \"CODE_DONE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Visualizes the closed-loop unit-step response and important control-performance markers.",
+        "label": "plotting_agent",
+        "config": {
+          "name": "plotting_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": "YOUR_OPENROUTER_API_KEY",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Visualizes the closed-loop unit-step response and important control-performance markers.",
+          "system_message": "You are plotting_agent, a scientific visualization specialist.\n\nYour job:\n- Read the PID design and Python simulation from previous agents.\n- Provide or refine the plotting section for the step response.\n- The plot must clearly show:\n  * time on the x-axis\n  * output response on the y-axis\n  * final/reference value line\n  * optional 2% settling-band lines\n  * title, legend, and grid\n- If useful, add annotations for overshoot and settling time.\n- Keep the plotting code compatible with matplotlib.\n- Do not redesign the controller.\n- Do not provide final pass/fail evaluation. The evaluator_agent handles that.\n- End your reply with exactly one line: \"PLOTTING_DONE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      },
+      {
+        "provider": "autogen_agentchat.agents.AssistantAgent",
+        "component_type": "agent",
+        "version": 1,
+        "component_version": 1,
+        "description": "Checks overshoot, settling time, steady-state error, and gives the final assessment.",
+        "label": "evaluator_agent",
+        "config": {
+          "name": "evaluator_agent",
+          "model_client": {
+            "provider": "autogen_ext.models.openai.OpenAIChatCompletionClient",
+            "component_type": "model",
+            "version": 1,
+            "component_version": 1,
+            "description": "NVIDIA Nemotron 3 Super 120B A12B Free via OpenRouter",
+            "label": "Nemotron 3 Super 120B A12B Free (OpenRouter)",
+            "config": {
+              "model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "api_key": "YOUR_OPENROUTER_API_KEY",
+              "base_url": "https://openrouter.ai/api/v1",
+              "model_info": {
+                "vision": false,
+                "function_calling": true,
+                "json_output": true,
+                "family": "unknown",
+                "structured_output": true
+              }
+            }
+          },
+          "model_context": {
+            "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+            "component_type": "chat_completion_context",
+            "version": 1,
+            "component_version": 1,
+            "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+            "label": "UnboundedChatCompletionContext",
+            "config": {}
+          },
+          "description": "Checks overshoot, settling time, steady-state error, and gives the final assessment.",
+          "system_message": "You are evaluator_agent, a PID performance evaluator.\n\nYour job:\n- Review the proposed PID parameters, simulation code, and step-response plotting logic.\n- Check whether the solution reports:\n  * percent overshoot\n  * settling time\n  * steady-state error\n- Compare the metrics against the user's requested targets.\n- If the user did not provide targets, use reasonable default guidance:\n  * overshoot below 10% is usually acceptable for a basic teaching example\n  * settling time should be finite and clearly reported\n  * steady-state error should be close to 0 for a unit-step reference when integral action is used\n- Identify risks such as instability, excessive oscillation, missing plant definition, missing control library installation, or incorrect metric calculations.\n- Give a concise final assessment with:\n  1. Parameters reviewed\n  2. Metrics checked\n  3. Pass/Needs improvement decision\n  4. Specific improvement suggestions\n- When you are finished, end your reply with exactly one line: \"TERMINATE\"\n",
+          "model_client_stream": true,
+          "reflect_on_tool_use": false,
+          "tool_call_summary_format": "{result}",
+          "metadata": {}
+        }
+      }
+    ],
+    "termination_condition": {
+      "provider": "autogen_agentchat.base.OrTerminationCondition",
+      "component_type": "termination",
+      "version": 1,
+      "component_version": 1,
+      "label": "TERMINATE or 12 messages",
+      "config": {
+        "conditions": [
+          {
+            "provider": "autogen_agentchat.conditions.TextMentionTermination",
+            "component_type": "termination",
+            "version": 1,
+            "component_version": 1,
+            "config": {
+              "text": "TERMINATE"
+            }
+          },
+          {
+            "provider": "autogen_agentchat.conditions.MaxMessageTermination",
+            "component_type": "termination",
+            "version": 1,
+            "component_version": 1,
+            "config": {
+              "max_messages": 12
+            }
+          }
+        ]
+      }
+    }
+  }
+}
