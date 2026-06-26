@@ -1,0 +1,127 @@
+{
+  "name": "My First AI Chatbot - OpenRouter Free",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 👋 Welcome to your first n8n workflow!\n\nThis is the simplest possible AI workflow using **OpenRouter free models**:\n**1 trigger + 1 chain + 1 OpenRouter chat model = a working chatbot.**\n\n### How to use it\n\n**Setup (one time, ~1 minute):**\n1. Open the **AI Chain** node below.\n2. Look at the **OpenRouter Chat Model** sub-node hanging beneath it.\n3. Click on the OpenRouter Chat Model → bind your **OpenRouter API** credential.\n   - Create a free OpenRouter key from your OpenRouter account.\n4. In the model field, choose a model from the dropdown, preferably one ending with `:free`.\n   - Suggested starter model: `qwen/qwen3-coder:free`\n5. Save the workflow.\n\n**Chat with your bot:**\n1. Click **Open Chat** at the bottom-left of the n8n editor.\n2. Type any question.\n3. The AI responds.\n\nThat's it! You just built and ran your first n8n + OpenRouter workflow.",
+        "height": 460,
+        "width": 580,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -40
+      ],
+      "id": "welcome-note",
+      "name": "Welcome"
+    },
+    {
+      "parameters": {
+        "content": "## 🎯 Try these exercises\n\n**Exercise 1 — Change the bot's personality**\nOpen the **AI Chain** node. In the prompt, change \"a friendly AI tutor\" to:\n- \"a sarcastic comedian\"\n- \"a Shakespearean poet\"\n- \"a strict chemistry professor\"\nThen chat and see the difference.\n\n**Exercise 2 — Make it discipline-specific**\nReplace the system role with:\n\"You are an expert in [your major]. Only answer questions related to [your major]. Politely decline anything else.\"\n\n**Exercise 3 — Change the OpenRouter model**\nClick the **OpenRouter Chat Model** node and choose another model from the dropdown.\nFor free testing, prefer models ending with:\n- `:free`\n\nSuggested first model:\n- `qwen/qwen3-coder:free`\n\nIf a model gives a rate-limit or payment error, wait a few minutes or choose another `:free` model.\n\n**Exercise 4 — Change temperature**\nIn the OpenRouter node options, set Sampling Temperature:\n- 0.0 = factual, predictable\n- 0.7 = balanced\n- 1.0 = creative",
+        "height": 460,
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        -40
+      ],
+      "id": "exercises-note",
+      "name": "Exercises"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        120,
+        500
+      ],
+      "id": "chat-trigger",
+      "name": "When chat message received"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a friendly AI tutor for university students. Be helpful, clear, and concise. When explaining things, use simple examples a student would understand.\n\nStudent's question: {{ $json.chatInput }}\n\nYour answer:",
+        "messages": {
+          "messageValues": []
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        400,
+        500
+      ],
+      "id": "ai-chain",
+      "name": "AI Chain"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-coder:free",
+        "options": {
+          "maxTokens": 800,
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        400,
+        740
+      ],
+      "id": "openrouter-model",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "first-openrouter-chatbot-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "description": "Beginner-friendly first n8n + AI workflow. Chat Trigger → LLM Chain → OpenRouter Chat Model. Uses OpenRouter free model option; requires an OpenRouter API key."
+  },
+  "tags": []
+}
