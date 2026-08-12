@@ -99,7 +99,7 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-embedding-2"
+        "modelName": "models/gemini-embedding-001"
       },
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
       "typeVersion": 1,
@@ -183,7 +183,7 @@
     },
     {
       "parameters": {
-        "content": "## Student RAG Ingestion Sub-workflow\nInput: **query** (file name/search phrase)\n\nGoogle Drive → text → chunks → Gemini embeddings → Simple Vector Store\n\nSelect your own Google Drive OAuth and Gemini API credentials after import.",
+        "content": "## Student RAG Ingestion Sub-workflow\nInput: **query** (file name/search phrase)\n\nGoogle Drive → text → chunks → Gemini embeddings → Simple Vector Store\n\nAfter import: select your own Google Drive OAuth and Gemini API credentials.\nEmbedding model: models/gemini-embedding-001 (3072 dimensions). If the model dropdown is empty, the Gemini credential is the problem, not the model.",
         "height": 180,
         "width": 780,
         "color": 5
