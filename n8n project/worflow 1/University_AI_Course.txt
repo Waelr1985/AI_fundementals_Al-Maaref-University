@@ -1,0 +1,48 @@
+DATA SCIENCE ACADEMY
+Artificial Intelligence Training Program – 2026
+
+Program Overview
+
+The Data Science Academy offers an 8-month Artificial Intelligence
+Training Program designed for beginner and intermediate students.
+
+The program currently has 120 registered students.
+
+Classes are held three times per week:
+Monday at 6:00 PM
+Wednesday at 6:00 PM
+Saturday at 10:00 AM
+
+Each class lasts two hours.
+
+The program is divided into six main modules:
+
+1. Python for Data Science
+2. Machine Learning
+3. Deep Learning
+4. Natural Language Processing
+5. Generative AI and Large Language Models
+6. AI Agents and RAG
+
+Students complete four practical projects during the program.
+
+The final project requires students to build an AI application
+that uses Retrieval-Augmented Generation (RAG).
+
+The RAG module lasts four weeks.
+
+During the RAG module, students learn:
+- Document loading
+- Text splitting
+- Embeddings
+- Vector databases
+- Semantic search
+- AI agents
+- Retrieval-Augmented Generation
+
+Students must achieve at least 70% to successfully complete
+the program.
+
+The program coordinator is Dr. Wael Rahhal.
+
+The final project submission deadline is December 18, 2026.
