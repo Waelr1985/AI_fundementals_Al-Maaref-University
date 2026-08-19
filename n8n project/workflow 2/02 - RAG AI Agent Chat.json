@@ -1,0 +1,242 @@
+{
+  "name": "02 - RAG AI Agent Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -520,
+        0
+      ],
+      "id": "8e07bffd-e6b8-4fa7-90aa-6f0fb614b0c2",
+      "name": "When chat message received",
+      "webhookId": "2adca04d-2e38-4d76-ac02-935a7ea4d918"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a beginner-friendly RAG assistant for a university AI course.\n\nRules:\n1. For any question about course documents, ALWAYS call the user_documents tool first. Never answer from your own knowledge.\n2. Answer only from the retrieved chunks. Quote the wording of the document where you can.\n3. If the retrieved chunks do not contain the answer, say plainly that the indexed documents do not cover it. Do not guess.\n4. If the tool returns nothing at all, tell the user no documents are indexed yet and that Workflow 1 needs to be run.\n5. If the user asks to add, import or index a Drive file, use the add_google_drive_file tool and confirm which file was added."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -260,
+        0
+      ],
+      "id": "cf8cf5d4-8559-4ddb-868e-8c49b66e204d",
+      "name": "RAG AI Agent",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        220
+      ],
+      "id": "0ca5fc0d-2a20-4781-baca-1ecbaa14c85d",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "contextWindowLength": 8
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -180,
+        220
+      ],
+      "id": "5b30c28c-8b5f-4fdc-9599-e6e9b0334fbe",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "name": "add_google_drive_file",
+        "description": "Search Google Drive for a file by name and add its contents to the RAG knowledge base. Use when the user asks to add, import, index or learn from a Google Drive file. NOTE: this tool is not connected until Lesson 3.",
+        "workflowId": {
+          "__rl": true,
+          "value": "RAGDriveIngest01",
+          "mode": "list",
+          "cachedResultName": "01 - RAG Google Drive Ingestion"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI(\"query\", \"The Google Drive file name or search phrase to index\", \"string\") }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        40,
+        220
+      ],
+      "id": "4c97a8e8-1ccf-4a29-a4fe-735cc4faaa9a",
+      "name": "Add Google Drive File"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "user_documents",
+        "toolDescription": "Search the Google Drive documents that have already been indexed. Use this before answering questions about uploaded or indexed documents.",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "user_documents",
+          "cachedResultName": "user_documents"
+        },
+        "topK": 4,
+        "includeDocumentMetadata": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        280,
+        220
+      ],
+      "id": "89c9ba47-63c6-40ed-bd0d-445ed2dfa517",
+      "name": "Search Indexed Documents"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        280,
+        430
+      ],
+      "id": "70f6e030-718f-491b-b506-47be96356939",
+      "name": "Embeddings Google Gemini - Retrieval"
+    },
+    {
+      "parameters": {
+        "content": "## Workflow 2 — Student RAG Chat Agent\n**Before this works:** run Workflow 1 once so the vector store is populated. The Simple Vector Store lives in n8n's memory and is emptied every time n8n restarts.\n\n**Try:** *What score do I need to pass?*  ·  *List the six modules.*  ·  *When is the final project due?*\n\n**Retrieval embedding model must match Workflow 1** — both are models/gemini-embedding-001.\n**Add Google Drive File is dormant.** Its workflow reference breaks on import; you reconnect it in Lesson 3.",
+        "height": 260,
+        "width": 820,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -220
+      ],
+      "id": "85fa1ce3-bad4-4b25-ac4c-eba99639c884",
+      "name": "Student Note - Chat"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Google Drive File": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Indexed Documents": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini - Retrieval": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Search Indexed Documents",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3cd19eff-445d-4f4c-b058-185db3d7f4da",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "RAGGeminiAgent01",
+  "tags": []
+}
